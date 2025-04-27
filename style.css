@@ -1,0 +1,143 @@
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #e5ddd5;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+#loginPage {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-sizing: border-box;
+    width: 90%;
+}
+
+#chatPage {
+    display: none;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#chatPage h2#userLabel {
+    padding: 16px;
+    background-color: #f0f0f0;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+#messages {
+    border: none;
+    overflow-y: auto;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 60px;
+}
+
+.message {
+    margin-bottom: 8px;
+    clear: both;
+    width: fit-content;
+}
+
+.own {
+    margin-left: auto;
+    text-align: right;
+    width: fit-content;
+}
+
+.message .username {
+    font-size: 0.8em;
+    color: #777;
+    margin-bottom: 2px;
+}
+
+.own .username {
+    text-align: right;
+}
+
+.message .text {
+    padding: 8px 10px;
+    border-radius: 5px;
+    background-color: #ffffff;
+    word-break: break-word;
+}
+
+.own .text {
+    padding: 8px 10px;
+    border-radius: 5px;
+    background-color: #dcf8c6;
+    word-break: break-word;
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    background-color: #f0f0f0;
+}
+
+.input-area > input[type="text"] {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.input-area > button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* Media query untuk layar dengan lebar minimal 601px */
+@media (min-width: 601px) {
+    #loginPage {
+        width: 600px;
+        margin: 50px auto;
+    }
+}
+
+/* Media query untuk layar dengan lebar maksimal 400px */
+@media (max-width: 400px) {
+    #loginPage h2 {
+        font-size: 1.5em;
+    }
+    #messages {
+        padding-bottom: 50px;
+    }
+    .input-area > input[type="text"],
+    input[type="password"],
+    .input-area > button,
+    #loginPage > button {
+        padding: 8px;
+        font-size: 0.9em;
+    }
+}
