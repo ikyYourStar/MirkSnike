@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Realtime</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginPage">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<div id="chatPage" style="display:none;">
+    <h2 id="userLabel"></h2>
+    <div id="messages"></div>
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Ketik pesan...">
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+</div>
+
+<script type="module" src="firebase.js"></script>
+<script type="module">
+import { db, ref, set, push, onChildAdded, get, child } from './firebase.js';
+
+let currentUser = localStorage.getItem('currentUser'); // Cek apakah ada user di Local Storage
+
+// Fungsi untuk menyimpan informasi login
+function saveLoginSession(username) {
+    localStorage.setItem('currentUser', username);
+}
+
+// Fungsi untuk menghapus informasi login (logout jika diperlukan)
+function clearLoginSession() {
+    localStorage.removeItem('currentUser');
+    currentUser = null;
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('chatPage').style.display = 'none';
+}
+
+// Cek status login saat halaman dimuat
+if (currentUser) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('chatPage').style.display = 'block';
+    document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
+    startChat();
+} else {
+    document.getElementById('loginPage').style.display = 'block';
+    document.getElementById('chatPage').style.display = 'none';
+}
+
+// Login Function
+window.login = async function() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (!username || !password) {
+        alert("Username dan Password wajib diisi");
+        return;
+    }
+
+    const userRef = ref(db, 'users/' + username);
+    const snapshot = await get(userRef);
+
+    if (snapshot.exists()) {
+        const userData = snapshot.val();
+        if (userData.password === password) {
+            // Berhasil login
+            currentUser = username;
+            saveLoginSession(currentUser); // Simpan sesi login
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('chatPage').style.display = 'block';
+            document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
+            startChat();
+        } else {
+            alert("Password salah!");
+        }
+    } else {
+        // Daftarkan user baru
+        await set(userRef, {
+            username: username,
+            password: password
+        });
+        currentUser = username;
+        saveLoginSession(currentUser); // Simpan sesi login
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('chatPage').style.display = 'block';
+        document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
+        startChat();
+    }
+}
+
+// Mulai Chat
+function startChat() {
+    const messagesRef = ref(db, 'messages');
+    onChildAdded(messagesRef, (snapshot) => {
+        const message = snapshot.val();
+        console.log("Pesan baru diterima:", message); // Untuk debugging
+        displayMessage(message.username, message.text);
+    });
+}
+
+// Kirim Pesan
+window.sendMessage = function() {
+    const messageInput = document.getElementById('messageInput');
+    const text = messageInput.value.trim();
+    if (!text) return;
+
+    const messagesRef = ref(db, 'messages');
+    push(messagesRef, {
+        username: currentUser,
+        text: text
+    });
+
+    messageInput.value = '';
+}
+
+// Tampilkan Pesan
+function displayMessage(username, text) {
+    const messagesDiv = document.getElementById('messages');
+    const div = document.createElement('div');
+    div.className = username === currentUser ? 'message own' : 'message';
+    div.innerHTML = `<div class="username">${username}</div><div class="text">${text}</div>`;
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+</script>
+
+</body>
+</html>
