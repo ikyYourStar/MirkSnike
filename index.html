@@ -2,8 +2,13 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Maomao Chat Waifu</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#075E54">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -13,6 +18,11 @@
             padding: 0;
             box-sizing: border-box;
             overflow: hidden;
+            /* Tambahkan properti untuk menyesuaikan dengan area aman (notch, gesture bar, dll.) */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -31,8 +41,9 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            height: 100vh;
-            max-height: 100vh;
+            /* Gunakan 100dvh untuk tinggi viewport dinamis */
+            height: 100dvh;
+            max-height: 100dvh;
             position: relative;
             z-index: 1;
         }
@@ -68,53 +79,53 @@
             font-weight: 600;
             flex-grow: 1;
             text-align: center;
-            margin-left: -48px; 
+            margin-left: -48px;
         }
         .hamburger-icon {
             cursor: pointer;
             padding: 0.5rem;
             display: flex;
             flex-direction: column;
-            gap: 4px; 
-            width: 32px; 
-            height: 32px; 
+            gap: 4px;
+            width: 32px;
+            height: 32px;
             justify-content: center;
             align-items: center;
-            position: absolute; 
-            right: 1rem; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            z-index: 25; 
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 25;
         }
         .hamburger-icon .line {
-            width: 24px; 
-            height: 2px; 
+            width: 24px;
+            height: 2px;
             background-color: white;
-            border-radius: 1px; 
+            border-radius: 1px;
             transition: all 0.3s ease;
         }
         .hamburger-icon.open .line:nth-child(1) {
-            transform: translateY(6px) rotate(45deg); 
+            transform: translateY(6px) rotate(45deg);
         }
         .hamburger-icon.open .line:nth-child(2) {
             opacity: 0;
         }
         .hamburger-icon.open .line:nth-child(3) {
-            transform: translateY(-6px) rotate(-45deg); 
+            transform: translateY(-6px) rotate(-45deg);
         }
 
         .sidebar {
             position: absolute;
             top: 0;
-            right: 0; 
+            right: 0;
             width: 250px;
             height: 100%;
             background-color: #075E54;
-            transform: translateX(100%); 
+            transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
             z-index: 15;
             padding: 1rem;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2); 
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
             display: flex;
             flex-direction: column;
         }
@@ -316,7 +327,7 @@
             <div class="sidebar-header">Navigasi Maomao</div>
             <a href="https://zedxfb.vercel.app/" target="_blank" class="sidebar-button">ZedxFB</a>
             <a href="https://zedxyt.vercel.app/" target="_blank" class="sidebar-button">ZedxYT</a>
-            <a href="https://zedxai.netlify.app/" target="_blank" class="sidebar-button">ZedxAI</a>
+            <a href="https://zedxai.vercel.app/" target="_blank" class="sidebar-button">ZedxAI</a>
             <a href="#" class="sidebar-button">Tombol Contoh 1</a>
             <a href="#" class="sidebar-button">Tombol Contoh 2</a>
         </div>
