@@ -3,132 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Realtime</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Maomao Chat Waifu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+        .chat-container {
+            background-color: #ffffff;
+            border-radius: 0;
+            box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100vh;
+            max-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        @media (min-width: 640px) {
+            .chat-container {
+                border-radius: 1.5rem;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                height: 80vh;
+                max-height: 800px;
+            }
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background-color: #075E54;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 20;
+        }
+        .chat-header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+        .chat-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            margin-left: -48px; 
+        }
+        .hamburger-icon {
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px; 
+            width: 32px; 
+            height: 32px; 
+            justify-content: center;
+            align-items: center;
+            position: absolute; 
+            right: 1rem; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            z-index: 25; 
+        }
+        .hamburger-icon .line {
+            width: 24px; 
+            height: 2px; 
+            background-color: white;
+            border-radius: 1px; 
+            transition: all 0.3s ease;
+        }
+        .hamburger-icon.open .line:nth-child(1) {
+            transform: translateY(6px) rotate(45deg); 
+        }
+        .hamburger-icon.open .line:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger-icon.open .line:nth-child(3) {
+            transform: translateY(-6px) rotate(-45deg); 
+        }
+
+        .sidebar {
+            position: absolute;
+            top: 0;
+            right: 0; 
+            width: 250px;
+            height: 100%;
+            background-color: #075E54;
+            transform: translateX(100%); 
+            transition: transform 0.3s ease-in-out;
+            z-index: 15;
+            padding: 1rem;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2); 
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            padding: 1rem 0;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 1rem;
+        }
+        .sidebar-button {
+            display: block;
+            background-color: #128C7E;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            text-align: left;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .sidebar-button:hover {
+            background-color: #075e54;
+        }
+        .sidebar-button:last-child {
+            margin-bottom: 0;
+        }
+
+        .backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .backdrop.open {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background-color: #ece5dd;
+        }
+        .message {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            word-wrap: break-word;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        .message.user {
+            background-color: #25D366;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 0.1rem;
+            max-width: 85%;
+            width: fit-content;
+        }
+        .message.ai {
+            background-color: #ffffff;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.1rem;
+            max-width: 70%;
+            width: fit-content;
+        }
+
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .copy-button {
+            background-color: #10b981;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            transition: background-color 0.2s;
+            display: block;
+            width: fit-content;
+        }
+        .copy-button:hover {
+            background-color: #059669;
+        }
+        .copy-button:active {
+            transform: translateY(1px);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+            border-top: 1px solid #e5e7eb;
+            background-color: #ffffff;
+        }
+        .chat-input input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 9999px;
+            outline: none;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .chat-input input:focus {
+            border-color: #25D366;
+        }
+        .chat-input button {
+            background-color: #075E54;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            margin-left: 0.75rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-input button:hover {
+            background-color: #128C7E;
+            transform: translateY(-1px);
+        }
+        .chat-input button:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator-bubble {
+            background-color: #ffffff;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 0.1rem;
+            max-width: 70%;
+            width: fit-content;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            box-sizing: border-box;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #6b7280;
+            border-radius: 50%;
+            margin: 0 2px;
+            opacity: 0;
+            animation: typing-fade-in-out 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing-fade-in-out {
+            0%, 100% { opacity: 0.5; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-3px); }
+            60% { opacity: 0.5; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
+    <div class="chat-container">
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">Navigasi Maomao</div>
+            <a href="https://zedxfb.vercel.app/" target="_blank" class="sidebar-button">ZedxFB</a>
+            <a href="https://zedxyt.vercel.app/" target="_blank" class="sidebar-button">ZedxYT</a>
+            <a href="https://zedxai.vercel.app/" target="_blank" class="sidebar-button">ZedxAI</a>
+            <a href="#" class="sidebar-button">Tombol Contoh 1</a>
+            <a href="#" class="sidebar-button">Tombol Contoh 2</a>
+        </div>
 
-<div id="loginPage">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()">Login</button>
-</div>
+        <div class="backdrop" id="backdrop"></div>
 
-<div id="chatPage" style="display:none;">
-    <h2 id="userLabel"></h2>
-    <div id="messages"></div>
-    <div class="input-area">
-        <input type="text" id="messageInput" placeholder="Ketik pesan...">
-        <button onclick="sendMessage()">Kirim</button>
+        <div class="chat-header">
+            <img src="https://raw.githubusercontent.com/ikyYourStar/ksr-api/refs/heads/main/ksr-image/9097286d2fe95ead638640e0297e14ac.jpg" alt="Foto Profil Maomao" id="profilePic">
+            <h2>Maomao AI</h2>
+            <div class="hamburger-icon" id="hamburgerIcon">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai">Halo! Saya Maomao!</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Ketik pesan Anda...">
+            <button id="sendButton">Kirim</button>
+        </div>
     </div>
-</div>
 
-<script type="module" src="firebase.js"></script>
-<script type="module">
-import { db, ref, set, push, onChildAdded, get, child } from './firebase.js';
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        const hamburgerIcon = document.getElementById('hamburgerIcon');
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('backdrop');
 
-let currentUser = localStorage.getItem('currentUser'); // Cek apakah ada user di Local Storage
+        let typingIndicatorElement = null;
 
-// Fungsi untuk menyimpan informasi login
-function saveLoginSession(username) {
-    localStorage.setItem('currentUser', username);
-}
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
 
-// Fungsi untuk menghapus informasi login (logout jika diperlukan)
-function clearLoginSession() {
-    localStorage.removeItem('currentUser');
-    currentUser = null;
-    document.getElementById('loginPage').style.display = 'block';
-    document.getElementById('chatPage').style.display = 'none';
-}
+            const codeRegex = /```(.*?)```/gs;
+            let match;
+            let lastIndex = 0;
+            const fragments = [];
 
-// Cek status login saat halaman dimuat
-if (currentUser) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('chatPage').style.display = 'block';
-    document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
-    startChat();
-} else {
-    document.getElementById('loginPage').style.display = 'block';
-    document.getElementById('chatPage').style.display = 'none';
-}
+            while ((match = codeRegex.exec(text)) !== null) {
+                if (match.index > lastIndex) {
+                    fragments.push(document.createTextNode(text.substring(lastIndex, match.index)));
+                }
 
-// Login Function
-window.login = async function() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    if (!username || !password) {
-        alert("Username dan Password wajib diisi");
-        return;
-    }
+                const codeContent = match[1].trim();
+                const codeBlock = document.createElement('pre');
+                codeBlock.classList.add('code-block');
+                codeBlock.textContent = codeContent;
+                fragments.push(codeBlock);
 
-    const userRef = ref(db, 'users/' + username);
-    const snapshot = await get(userRef);
+                const copyButton = document.createElement('button');
+                copyButton.classList.add('copy-button');
+                copyButton.textContent = 'Salin Kode';
+                copyButton.onclick = () => {
+                    navigator.clipboard.writeText(codeContent)
+                        .then(() => {
+                            copyButton.textContent = 'Disalin!';
+                            setTimeout(() => copyButton.textContent = 'Salin Kode', 2000);
+                        })
+                        .catch(err => {
+                            console.error('Gagal menyalin:', err);
+                            const textArea = document.createElement('textarea');
+                            textArea.value = codeContent;
+                            document.body.appendChild(textArea);
+                            textArea.focus();
+                            textArea.select();
+                            try {
+                                document.execCommand('copy');
+                                copyButton.textContent = 'Disalin!';
+                                setTimeout(() => copyButton.textContent = 'Salin Kode', 2000);
+                            } catch (err) {
+                                console.error('Fallback: Gagal menyalin:', err);
+                                alert('Gagal menyalin kode. Silakan salin secara manual.');
+                            }
+                            document.body.removeChild(textArea);
+                        });
+                };
+                fragments.push(copyButton);
 
-    if (snapshot.exists()) {
-        const userData = snapshot.val();
-        if (userData.password === password) {
-            // Berhasil login
-            currentUser = username;
-            saveLoginSession(currentUser); // Simpan sesi login
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('chatPage').style.display = 'block';
-            document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
-            startChat();
-        } else {
-            alert("Password salah!");
+                lastIndex = codeRegex.lastIndex;
+            }
+
+            if (lastIndex < text.length) {
+                fragments.push(document.createTextNode(text.substring(lastIndex)));
+            }
+
+            if (fragments.length === 0) {
+                messageDiv.textContent = text;
+            } else {
+                fragments.forEach(fragment => messageDiv.appendChild(fragment));
+            }
+
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-    } else {
-        // Daftarkan user baru
-        await set(userRef, {
-            username: username,
-            password: password
+
+        function showTypingIndicator() {
+            if (typingIndicatorElement) return;
+
+            typingIndicatorElement = document.createElement('div');
+            typingIndicatorElement.classList.add('typing-indicator-bubble');
+            typingIndicatorElement.innerHTML = `
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+                <span class="typing-dot"></span>
+            `;
+            chatMessages.appendChild(typingIndicatorElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            if (typingIndicatorElement) {
+                typingIndicatorElement.remove();
+                typingIndicatorElement = null;
+            }
+        }
+
+        async function sendMessage() {
+            const userMessage = userInput.value.trim();
+            if (userMessage === '') return;
+
+            addMessage(userMessage, 'user');
+            userInput.value = '';
+
+            sendButton.disabled = true;
+            userInput.disabled = true;
+
+            showTypingIndicator();
+
+            const aiPersonality = "Namamu Maomao, bisa di panggil xiaomao juga, kamu cerdas, logis, memiliki rasa ingin tahu terhadap racun, tidak suka bahasa formal, dan asik. Kamu juga sangat imut, suka warna hijau, dan kadang-kadang sedikit tidak pede. Jawablah:";
+            const fullPrompt = `${aiPersonality} ${userMessage}`;
+
+            try {
+                const response = await fetch(`https://urangkapolka.vercel.app/api/gemink?prompt=${encodeURIComponent(fullPrompt)}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const aiResponse = data.response || "Maaf, Maomao tidak bisa memproses permintaan Anda saat ini.";
+
+                const charsPerSecond = 30;
+                const minDelayMs = 700;
+                const maxDelayMs = 5000;
+                const calculatedDelay = (aiResponse.length / charsPerSecond) * 1000;
+                const finalDelay = Math.min(Math.max(calculatedDelay, minDelayMs), maxDelayMs);
+
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    addMessage(aiResponse, 'ai');
+                    sendButton.disabled = false;
+                    userInput.disabled = false;
+                    userInput.focus();
+                }, finalDelay);
+
+            } catch (error) {
+                console.error('Error fetching AI response:', error);
+                hideTypingIndicator();
+                addMessage('Maaf, ada masalah saat berkomunikasi dengan Maomao. Coba lagi nanti.', 'ai');
+                sendButton.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !sendButton.disabled) {
+                sendMessage();
+            }
         });
-        currentUser = username;
-        saveLoginSession(currentUser); // Simpan sesi login
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('chatPage').style.display = 'block';
-        document.getElementById('userLabel').innerText = "Login sebagai: " + currentUser;
-        startChat();
-    }
-}
 
-// Mulai Chat
-function startChat() {
-    const messagesRef = ref(db, 'messages');
-    onChildAdded(messagesRef, (snapshot) => {
-        const message = snapshot.val();
-        console.log("Pesan baru diterima:", message); // Untuk debugging
-        displayMessage(message.username, message.text);
-    });
-}
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            backdrop.classList.toggle('open');
+            hamburgerIcon.classList.toggle('open');
+        }
 
-// Kirim Pesan
-window.sendMessage = function() {
-    const messageInput = document.getElementById('messageInput');
-    const text = messageInput.value.trim();
-    if (!text) return;
+        hamburgerIcon.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
 
-    const messagesRef = ref(db, 'messages');
-    push(messagesRef, {
-        username: currentUser,
-        text: text
-    });
+        document.querySelectorAll('.sidebar-button').forEach(button => {
+            button.addEventListener('click', () => {
+                if (button.getAttribute('href') !== '#') {
+                    toggleSidebar();
+                }
+            });
+        });
 
-    messageInput.value = '';
-}
+        window.onload = () => {
+            userInput.focus();
+        };
 
-// Tampilkan Pesan
-function displayMessage(username, text) {
-    const messagesDiv = document.getElementById('messages');
-    const div = document.createElement('div');
-    div.className = username === currentUser ? 'message own' : 'message';
-    div.innerHTML = `<div class="username">${username}</div><div class="text">${text}</div>`;
-    messagesDiv.appendChild(div);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
-</script>
-
+        document.getElementById('profilePic').src = 'https://raw.githubusercontent.com/ikyYourStar/ksr-api/refs/heads/main/ksr-image/9097286d2fe95ead638640e0297e14ac.jpg';
+    </script>
 </body>
 </html>
